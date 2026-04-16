@@ -21,30 +21,20 @@ limitations under the License.
                params="parent_link
                        xyz:='0.0 0.0 0.0'
                        rpy:='0.0 0.0 0.0'
-                       robot_namespace:=''
-                       component_name:=''
-                       use_tf_prefix:=True">
+                       namespace:=''
+                       device_namespace:=''">
 
-    <!-- <xacro:if value="${component_name == ''}">
-      <xacro:property name="component_name" value="velodyne" />
-    </xacro:if> -->
-    <!-- ^ removed for compatibility with hw driver -->
+    <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
+    <xacro:property name="prefix" value="${device_namespace + '_' if device_namespace != '' else ''}" />
+    <xacro:property name="device_ns" value="${device_namespace + '/' if device_namespace != '' else ''}" />
 
-    <xacro:property name="robot_namespace_slash" value="${robot_namespace + '/' if robot_namespace != '' else ''}" />
-    <xacro:property name="tf_prefix" value="${robot_namespace_slash if use_tf_prefix in ['True', True] else ''}" />
-    <xacro:property name="component_name_underscore" value="${component_name + '_' if component_name != '' else ''}" />
-    <xacro:property name="component_name_slash" value="${component_name + '/' if component_name != '' else ''}" />
-
-    <xacro:property name="component_name_underscore_nonempty" value="${component_name_underscore if component_name_underscore != '' else 'velodyne_'}" />
-    <!-- ^ in case no name is provided, generate "..._link" instead of just "link" -->
-
-    <joint name="${parent_link.rstrip('_link')}_to_${component_name_underscore_nonempty}joint" type="fixed">
+    <joint name="${parent_link.rstrip('_link')}_to_${prefix}velodyne_puck_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />
       <parent link="${parent_link}" />
-      <child link="${component_name_underscore_nonempty}link" />
+      <child link="${prefix}velodyne_puck_link" />
     </joint>
 
-    <link name="${component_name_underscore_nonempty}link">
+    <link name="${prefix}velodyne_puck_link">
       <!-- <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
         <geometry>
@@ -79,19 +69,19 @@ limitations under the License.
       </inertial>
     </link>
 
-    <joint name="${component_name_underscore_nonempty}to_${component_name_underscore}velodyne_joint"
+    <joint name="${prefix}velodyne_puck_to_${prefix}velodyne_joint"
       type="fixed">
       <origin xyz="0.0 0.0 0.0378" rpy="0.0 0.0 0.0" />
-      <parent link="${component_name_underscore_nonempty}link" />
-      <child link="${component_name_underscore}velodyne" />
+      <parent link="${prefix}velodyne_puck_link" />
+      <child link="${prefix}velodyne" />
     </joint>
 
-    <link name="${component_name_underscore}velodyne" />
+    <link name="${prefix}velodyne" />
 
-    <gazebo reference="${component_name_underscore}velodyne">
+    <gazebo reference="${prefix}velodyne">
       <!-- gpu_lidar has to be set, CPU lidar doesn't work in ignition -
       https://github.com/gazebosim/gz-sensors/issues/26 -->
-      <sensor type="gpu_lidar" name="${robot_namespace_slash}${component_name_underscore}lidar">
+      <sensor type="gpu_lidar" name="${ns}${prefix}velodyne_puck_sensor">
         <visualize>false</visualize>
         <update_rate>10.0</update_rate>
 
@@ -122,8 +112,8 @@ limitations under the License.
           </noise>
         </ray>
 
-        <topic>${robot_namespace_slash}${component_name_slash}velodyne_points</topic>
-        <gz_frame_id>${tf_prefix}${component_name_underscore}velodyne</gz_frame_id>
+        <topic>${ns}${device_ns}velodyne_points</topic>
+        <gz_frame_id>${ns}${prefix}velodyne</gz_frame_id>
         <always_on>true</always_on>
       </sensor>
     </gazebo>

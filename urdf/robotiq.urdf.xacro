@@ -22,20 +22,16 @@ limitations under the License.
                        xyz:='0.0 0.0 0.0'
                        rpy:='0.0 0.0 0.0'
                        robotiq_type:=2f_85
-                       component_name:=''">
-
-    <xacro:if value="${component_name == ''}">
-      <xacro:property name="component_name" value="robotiq" />
-    </xacro:if>
-
-    <xacro:property name="component_name_underscore" value="${component_name + '_' if component_name != '' else ''}" />
+                       device_namespace:=''">
 
     <xacro:include
       filename="$(find robotiq_description)/urdf/robotiq_${robotiq_type}_macro.urdf.xacro"
       ns="gripper" />
 
-    <xacro:gripper.robotiq_gripper name="${component_name_underscore}${robotiq_type}"
-      prefix="${component_name_underscore}"
+    <xacro:property name="prefix" value="${device_namespace + '_' if device_namespace != '' else ''}" />
+
+    <xacro:gripper.robotiq_gripper name="${device_namespace}robotiq_${robotiq_type}"
+      prefix="${prefix}"
       parent="${parent_link}"
       use_fake_hardware="false"
       sim_ignition="true"

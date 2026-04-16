@@ -27,7 +27,7 @@ from launch.substitutions import EnvironmentVariable, LaunchConfiguration
 def launch_setup(context, *args, **kwargs):
     components_config_path = LaunchConfiguration("components_config_path").perform(context)
     robot_namespace = LaunchConfiguration("robot_namespace")
-    component_name = LaunchConfiguration("component_name")
+    device_namespace = LaunchConfiguration("device_namespace")
 
     components_config = None
     if components_config_path == "":
@@ -50,7 +50,7 @@ def launch_setup(context, *args, **kwargs):
                 executable="create",
                 arguments=[
                     "-name",
-                    [robot_namespace, "_", component_name, "_station"],
+                    [robot_namespace, "_", device_namespace, "_station"],
                     "-topic",
                     "station_description",
                     "-x",
@@ -67,6 +67,7 @@ def launch_setup(context, *args, **kwargs):
                     component_rpy[2],
                 ],
                 namespace=robot_namespace,
+                emulate_tty=True,
             )
 
             actions.append(spawn_station)
@@ -86,8 +87,8 @@ def generate_launch_description():
         ),
     )
 
-    declare_component_name = DeclareLaunchArgument(
-        "component_name",
+    declare_device_namespace = DeclareLaunchArgument(
+        "device_namespace",
         default_value="",
         description="Device namespace that will appear before all non absolute topics and TF frames, used for distinguishing multiple cameras on the same robot.",
     )
@@ -101,7 +102,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             declare_components_config_path_arg,
-            declare_component_name,
+            declare_device_namespace,
             declare_robot_namespace,
             OpaqueFunction(function=launch_setup),
         ]

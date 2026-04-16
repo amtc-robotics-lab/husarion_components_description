@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="gps_antenna"
+            params="parent_link
+                    xyz:='0.0 0.0 0.0'
+                    rpy:='0.0 0.0 0.0'
+                    namespace:=''
+                    device_namespace:=''">
+
+    <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
+    <xacro:property name="prefix" value="${device_namespace + '_' if device_namespace != '' else ''}" />
+    <xacro:property name="device_ns" value="${device_namespace + '/' if device_namespace != '' else ''}" />
+
+    <joint name="${parent_link.rstrip('_link')}_to_${prefix}gps_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}" />
+      <parent link="${parent_link}" />
+      <child link="${prefix}gps_link" />
+    </joint>
+
+    <link name="${prefix}gps_link">
+        <inertial>
+            <mass value="1e-5"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="1e-6" ixy="0.0" ixz="0.0"
+                iyy="1e-6" iyz="0.0"
+                izz="1e-6"/>
+        </inertial>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.05 0.045 0.025"/>
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0.012" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.06 0.055 0.024"/>
+            </geometry>
+            <material name="LightGrey">
+                <color rgba="0.2 0.2 0.2 1.0" />
+            </material>
+        </visual>
+        <visual>
+            <origin xyz="0 0 0.0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder length="0.005" radius="0.08"/>
+            </geometry>
+            <material name="LightGrey">
+                <color rgba="0.2 0.2 0.2 1.0" />
+            </material>
+        </visual>
+    </link>
+
+
+        <!-- <gazebo>
+        
+            <plugin name="gazebo_ros_gps" filename="libhector_gazebo_ros_gps.so">
+            <updateRate>4.0</updateRate>
+            <bodyName>fake_gps</bodyName>
+            <frameId>gps_link</frameId>
+            <topicName>/gps/fix</topicName>
+            <velocityTopicName>/gps/fix_velocity</velocityTopicName>
+            <referenceLatitude>-30.06022459407145675</referenceLatitude>
+            <referenceLongitude>-51.173913575780311191</referenceLongitude>
+            <referenceHeading>90</referenceHeading>
+            <referenceAltitude>10</referenceAltitude>
+            <offset>0 0 0</offset>
+            <drift>0.001 0.001 0.001</drift>
+            <gaussianNoise>0.05 0.05 0.05</gaussianNoise>
+            <velocityDrift>0.001 0.001 0.001</velocityDrift>
+            <velocityGaussianNoise>0.5 0.5 0.5</velocityGaussianNoise>
+            </plugin>
+
+        </gazebo> -->
+</xacro:macro>
+</robot>

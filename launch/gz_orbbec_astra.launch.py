@@ -23,6 +23,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import (
     EnvironmentVariable,
     LaunchConfiguration,
+    PythonExpression,
 )
 
 
@@ -35,19 +36,23 @@ def generate_launch_description():
     )
 
     robot_namespace = LaunchConfiguration("robot_namespace")
-    component_name = LaunchConfiguration("component_name")
+    device_namespace = LaunchConfiguration("device_namespace")
     gz_bridge_name = LaunchConfiguration("gz_bridge_name")
+
+    device_namespace = PythonExpression(
+        ["'", device_namespace, "' if '", device_namespace, "' else 'camera'"]
+    )
 
     namespaced_gz_bridge_config_path = ReplaceString(
         source_file=gz_bridge_config_path,
         replacements={
             "<robot_namespace>": robot_namespace,
-            "<component_name>": component_name,
+            "<device_namespace>": device_namespace,
         },
     )
 
-    declare_component_name = DeclareLaunchArgument(
-        "component_name",
+    declare_device_namespace = DeclareLaunchArgument(
+        "device_namespace",
         default_value="",
         description="Sensor namespace that will appear before all non absolute topics and TF frames, used for distinguishing multiple cameras on the same robot.",
     )
@@ -75,7 +80,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            declare_component_name,
+            declare_device_namespace,
             declare_robot_namespace,
             declare_gz_bridge_name,
             gz_bridge,

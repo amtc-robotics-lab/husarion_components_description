@@ -124,6 +124,16 @@ limitations under the License.
       <xacro:property name="collision_box_xyz"  value="0 0 0.125"      scope="parent" />
     </xacro:if>
 
+    <xacro:if value="${model == 'dev10'}">
+      <xacro:property name="parent_link" value="mount_link" scope="parent" />
+      <xacro:property name="xyz" value="0 0 -0.02"  scope="parent" />
+      <xacro:property name="rpy" value="0 0 ${-pi/2.0}" scope="parent" />
+
+      <xacro:property name="collision_box_size" value="0.06 0.525 0.25"      scope="parent" />
+      <xacro:property name="collision_box_rpy"  value="0 0 ${-pi/2.0}"      scope="parent" />
+      <xacro:property name="collision_box_xyz"  value="0 0 0.125"      scope="parent" />
+    </xacro:if>
+
     <joint name="${model}_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />
       <parent link="${parent_link}" />
