@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-<xacro:macro name="gps_antenna"
+<xacro:macro name="custom_component"
             params="parent_link
                     xyz:='0.0 0.0 0.0'
                     rpy:='0.0 0.0 0.0'
-                    namespace:=''
-                    device_namespace:=''">
+                    component_name:=''
+                    robot_namespace:=''
+                    use_tf_prefix:=True">
 
-    <xacro:property name="ns" value="${namespace + '/' if namespace != '' else ''}" />
-    <xacro:property name="prefix" value="${device_namespace + '_' if device_namespace != '' else ''}" />
-    <xacro:property name="device_ns" value="${device_namespace + '/' if device_namespace != '' else ''}" />
 
-    <joint name="${parent_link.rstrip('_link')}_to_${prefix}gps_joint" type="fixed">
+    <joint name="${parent_link.rstrip('_link')}_to_${component_name}_gps_joint" type="fixed">
       <origin xyz="${xyz}" rpy="${rpy}" />
       <parent link="${parent_link}" />
-      <child link="${prefix}gps_link" />
+      <child link="${component_name}_gps_link" />
     </joint>
 
-    <link name="${prefix}gps_link">
+    <link name="${component_name}_gps_link">
         <inertial>
             <mass value="1e-5"/>
             <origin xyz="0 0 0" rpy="0 0 0"/>

@@ -25,7 +25,7 @@ from ament_index_python.packages import get_package_share_directory
 husarion_components_description = get_package_share_directory("husarion_components_description")
 xacro_path = os.path.join(husarion_components_description, "test/component.urdf.xacro")
 
-# Type: [device_namespace, link_name, sensor_link_name, sensor_name, default_device_namespace]
+# Type: [component_name, link_name, sensor_link_name, sensor_name, default_component_name]
 components_types_with_names = {
     "DEV01": ["", "dev01_link", "", "", ""],
     "DEV02": ["", "dev02_link", "", "", ""],
@@ -37,21 +37,22 @@ components_types_with_names = {
     "DEV07": ["", "dev07_link", "", "", ""],
     "DEV07T": ["", "dev07t_link", "", "", ""],
     "DEV09": ["", "dev09_link", "", "", ""],
-    "LDR01": ["slamtec_rplidar_s1", "laser", "laser", "slamtec_rplidar_sensor", ""],
-    "LDR06": ["slamtec_rplidar_s3", "laser", "laser", "slamtec_rplidar_sensor", ""],
-    "LDR10": ["ouster_os0_32", "os_lidar", "os_lidar", "ouster_os0_32_sensor", ""],
-    "LDR11": ["ouster_os0_64", "os_lidar", "os_lidar", "ouster_os0_64_sensor", ""],
-    "LDR12": ["ouster_os0_128", "os_lidar", "os_lidar", "ouster_os0_128_sensor", ""],
-    "LDR13": ["ouster_os1_32", "os_lidar", "os_lidar", "ouster_os1_32_sensor", ""],
-    "LDR14": ["ouster_os1_64", "os_lidar", "os_lidar", "ouster_os1_64_sensor", ""],
-    "LDR15": ["ouster_os1_128", "os_lidar", "os_lidar", "ouster_os1_128_sensor", ""],
-    "LDR20": ["velodyne_puck", "velodyne", "velodyne", "velodyne_puck_sensor", ""],
-    "CAM01": ["orbbec_astra", "link", "link", "orbbec_astra_color", "camera"],
-    "CAM03": ["zed2", "center", "center", "stereolabs_zed_depth", "zed"],
-    "CAM04": ["zed2i", "center", "center", "stereolabs_zed_depth", "zed"],
-    "CAM06": ["zedx", "center", "center", "stereolabs_zed_depth", "zed"],
-    "MAN01": ["ur3e", "base_link", "", "", ""],
-    "MAN02": ["ur5e", "base_link", "", "", ""],
+    "LDR01": ["slamtec_rplidar_s1", "laser", "laser", "lidar", ""],
+    "LDR06": ["slamtec_rplidar_s3", "laser", "laser", "lidar", ""],
+    "LDR10": ["ouster_os0_32", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR11": ["ouster_os0_64", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR12": ["ouster_os0_128", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR13": ["ouster_os1_32", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR14": ["ouster_os1_64", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR15": ["ouster_os1_128", "os_lidar", "os_lidar", "lidar", ""],
+    "LDR20": ["velodyne_puck", "velodyne", "velodyne", "lidar", ""],
+    "CAM01": ["orbbec_astra", "link", "link", "camera_color", "camera"],
+    "CAM03": ["zed2", "camera_center", "camera_center", "camera_color", "zed"],
+    "CAM04": ["zed2i", "camera_center", "camera_center", "camera_color", "zed"],
+    "CAM05": ["zedm", "camera_center", "camera_center", "camera_color", "zed"],
+    "CAM06": ["zedx", "camera_center", "camera_center", "camera_color", "zed"],
+    "MAN01": ["ur3e", "base_link", "", "", "ur"],
+    "MAN02": ["ur5e", "base_link", "", "", "ur"],
     # "MAN03": ["kinova_lite",               "base_link",    "",         "",""], use_isaac error
     # "MAN04": ["kinova_gen3_6dof", "base_link", "", "", ""],
     # "MAN05": [
@@ -70,9 +71,9 @@ components_types_with_names = {
     #     "kinova_gen3_7dof",
     # ],
     # "GRP01": [], not implemented in robotiq_description
-    "GRP02": ["robotiq", "robotiq_85_base_link", "", "", ""],
+    "GRP02": ["robotiq", "robotiq_85_base_link", "", "", "robotiq"],
     # "GRP03": ["robotiq", "robotiq_140_base_link", "", "", ""], not implemented in robotiq_description,
-    "WCH01": ["wibotic_receiver", "wibotic_receiver_link", "", "", ""],
+    "WCH01": ["wibotic_receiver", "mount_link", "", "", "wibotic_receiver"],
 }
 
 
@@ -90,7 +91,7 @@ class ComponentsYamlParseUtils:
     def create_component(
         self,
         type: str,
-        device_namespace: str,
+        component_name: str,
         parent_link="cover_link",
         xyz="0.0 0.0 0.0",
         rpy="0.0 0.0 0.0",
@@ -102,8 +103,8 @@ class ComponentsYamlParseUtils:
             "rpy": rpy,
         }
 
-        if device_namespace != "":
-            component["device_namespace"] = device_namespace
+        if component_name != "":
+            component["name"] = component_name
 
         return component
 
@@ -139,37 +140,37 @@ class ComponentsYamlParseUtils:
 
     def test_component(self, component: dict, expected_result: list, components_config_path: str):
         names = components_types_with_names[component["type"]]
-        component_name = names[0]
+        component_model_name = names[0]
         link_name = names[1]
         sensor_link_name = names[2]
         sensor_name = names[3]
-        default_device_namespace = names[4]
+        default_component_name = names[4]
 
         namespaced_link_name = link_name
         namespaced_sensor_link_name = sensor_link_name
         namespaced_sensor_name = sensor_name
 
-        device_namespace = ""
-        if "device_namespace" in component:
-            device_namespace = component["device_namespace"]
+        component_name = ""
+        if "name" in component:
+            component_name = component["name"]
 
-        if device_namespace == "":
-            device_namespace = default_device_namespace
+        if component_name == "":
+            component_name = default_component_name
 
-        if device_namespace != "":
-            namespaced_link_name = device_namespace + "_" + namespaced_link_name
-            namespaced_sensor_link_name = device_namespace + "_" + namespaced_sensor_link_name
-            namespaced_sensor_name = device_namespace + "_" + namespaced_sensor_name
+        if component_name != "":
+            namespaced_link_name = component_name + "_" + namespaced_link_name
+            namespaced_sensor_link_name = component_name + "_" + namespaced_sensor_link_name
+            namespaced_sensor_name = component_name + "_" + namespaced_sensor_name
 
         if self.does_urdf_parse() != expected_result[0]:
             assert (
                 False
-            ), f"Expected prase result {expected_result[0]} with file {components_config_path} and component {component_name}."
+            ), f"Expected prase result {expected_result[0]} with file {components_config_path} and component {component_model_name}."
 
         if self.does_link_exist(self._urdf, namespaced_link_name) != expected_result[1]:
             assert (
                 False
-            ), f"Link name: {namespaced_link_name}. Expected result {expected_result[1]} with file {components_config_path} and component {component_name} for this urdf {self._urdf.toprettyxml()}."
+            ), f"Link name: {namespaced_link_name}. Expected result {expected_result[1]} with file {components_config_path} and component {component_model_name} for this urdf {self._urdf.toprettyxml()}."
 
         if (
             names[2] != ""
@@ -180,13 +181,13 @@ class ComponentsYamlParseUtils:
         ):
             assert (
                 False
-            ), f"Sensor name: {namespaced_sensor_name}, sensor link name: {namespaced_sensor_link_name}. Expected result {expected_result[2]} with file {components_config_path} and component {component_name} for this urdf ."
+            ), f"Sensor name: {namespaced_sensor_name}, sensor link name: {namespaced_sensor_link_name}. Expected result {expected_result[2]} with file {components_config_path} and component {component_model_name} for this urdf ."
 
 
 def test_all_good_single_components(tmpdir_factory):
     for type_name, value in components_types_with_names.items():
-        device_namespace = value[0]
-        folder_name = device_namespace
+        component_name = value[0]
+        folder_name = component_name
 
         if "DEV" in type_name:
             folder_name = type_name
@@ -197,7 +198,7 @@ def test_all_good_single_components(tmpdir_factory):
         utils = ComponentsYamlParseUtils(str(components_config_path))
         components = {
             "components": [
-                utils.create_component(type_name, device_namespace),
+                utils.create_component(type_name, component_name),
                 utils.create_component(type_name, ""),
             ],
         }
@@ -206,3 +207,76 @@ def test_all_good_single_components(tmpdir_factory):
 
         for component in components["components"]:
             utils.test_component(component, [True, True, True], str(components_config_path))
+
+
+EXAMPLE_XACRO = os.path.join(
+    husarion_components_description, "urdf/custom_component_example.urdf.xacro"
+)
+
+
+def _render_custom(tmpdir_factory, folder, entry):
+    config_path = tmpdir_factory.mktemp(folder).join("config.yaml")
+    with open(str(config_path), mode="w", encoding="utf-8") as file:
+        yaml.dump({"components": [entry]}, file)
+    utils = ComponentsYamlParseUtils(str(config_path))
+    assert utils.does_urdf_parse(), f"custom component failed to parse: {entry}"
+    return utils
+
+
+def test_custom_component_with_package(tmpdir_factory):
+    utils = _render_custom(
+        tmpdir_factory,
+        "custom_pkg",
+        {
+            "type": "custom",
+            "name": "my_sensor",
+            "package": "husarion_components_description",
+            "file": "urdf/custom_component_example.urdf.xacro",
+            "parent_link": "cover_link",
+            "xyz": "0.0 0.0 0.1",
+            "rpy": "0.0 0.0 0.0",
+        },
+    )
+    assert utils.does_link_exist(utils._urdf, "my_sensor_link")
+
+
+def test_custom_component_with_absolute_path(tmpdir_factory):
+    utils = _render_custom(
+        tmpdir_factory,
+        "custom_abs",
+        {
+            "type": "custom",
+            "name": "my_sensor",
+            "file": EXAMPLE_XACRO,
+            "parent_link": "cover_link",
+        },
+    )
+    assert utils.does_link_exist(utils._urdf, "my_sensor_link")
+
+
+def test_custom_component_with_macro_name_override(tmpdir_factory):
+    fixture = tmpdir_factory.mktemp("custom_macro").join("renamed.urdf.xacro")
+    with open(str(fixture), mode="w", encoding="utf-8") as file:
+        file.write(
+            '<robot xmlns:xacro="http://wiki.ros.org/xacro">'
+            '<xacro:macro name="my_macro" '
+            "params=\"parent_link xyz:='0 0 0' rpy:='0 0 0' "
+            "component_name:='' robot_namespace:='' use_tf_prefix:=True\">"
+            '<link name="${component_name}_link"/>'
+            '<joint name="${parent_link}_to_${component_name}_joint" type="fixed">'
+            '<parent link="${parent_link}"/><child link="${component_name}_link"/>'
+            '<origin xyz="${xyz}" rpy="${rpy}"/></joint>'
+            "</xacro:macro></robot>"
+        )
+    utils = _render_custom(
+        tmpdir_factory,
+        "custom_macro_cfg",
+        {
+            "type": "custom",
+            "name": "renamed",
+            "file": str(fixture),
+            "macro_name": "my_macro",
+            "parent_link": "cover_link",
+        },
+    )
+    assert utils.does_link_exist(utils._urdf, "renamed_link")

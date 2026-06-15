@@ -17,15 +17,16 @@ limitations under the License.
 -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="wibotic_receiver"
+  <xacro:macro name="rack"
                params="parent_link
                        xyz:='0.0 0.0 0.0'
                        rpy:='0.0 0.0 0.0'
                        robot_namespace:=''
-                       component_name:=''">
+                       component_name:=''
+                       elements">
 
     <xacro:if value="${component_name == ''}">
-      <xacro:property name="component_name" value="wibotic_receiver" />
+      <xacro:property name="component_name" value="rack" />
     </xacro:if>
 
     <xacro:property name="robot_namespace_slash" value="${robot_namespace + '/' if robot_namespace != '' else ''}" />
@@ -38,38 +39,33 @@ limitations under the License.
     </joint>
 
     <link name="${component_name_underscore}mount_link">
+      <xacro:load_element elements="${elements}" counter="${len(elements)}" />
+    </link>
+
+  </xacro:macro>
+
+  <xacro:macro name="load_element" params="elements counter">
+    <xacro:if value="${counter}">
+      <xacro:property name="index" value="${counter - 1}" scope="parent" />
+      <xacro:property name="component" value="${elements[index]}" scope="parent" />
+
       <visual>
-        <origin xyz="0.01 0.0 0.0" rpy="0.0 0.0 0.0" />
+        <origin xyz="${component['xyz']}" rpy="${component['rpy']}" />
         <geometry>
-          <mesh filename="package://husarion_components_description/meshes/wibotic_receiver.dae" />
+          <mesh filename="package://husarion_components_description/meshes/v_slot_profile.dae" scale="${component['length']} 1.0 1.0"/>
         </geometry>
-        <material name="Grey">
-          <color rgba="0.15 0.15 0.15 1.0" />
-        </material>
       </visual>
 
       <collision>
-        <origin xyz="-0.018 0.0 0.085" rpy="0.0 0.0 0.0" />
+         <origin xyz="${component['xyz']}" rpy="${component['rpy']}" />
         <geometry>
-          <box size="0.015 0.135 0.19" />
+          <box size="${component['length']} 0.0202 0.0202" />
         </geometry>
       </collision>
 
-      <collision>
-        <origin xyz="0.004 0.0 0.115" rpy="0.0 ${pi/2} 0.0" />
-        <geometry>
-          <cylinder length="0.03" radius="0.07" />
-        </geometry>
-      </collision>
-    </link>
-
-    <joint name="${component_name_underscore}mount_link_to_${component_name_underscore}coil_joint" type="fixed">
-      <origin xyz="0.018 0.0 0.115" rpy="0.0 0.0 0.0" />
-      <parent link="${component_name_underscore}mount_link" />
-      <child link="${component_name_underscore}coil_link" />
-    </joint>
-
-    <link name="${component_name_underscore}coil_link" />
-
+      <xacro:if value="${index}">
+        <xacro:load_element elements="${elements}" counter="${index}" />
+      </xacro:if>
+    </xacro:if>
   </xacro:macro>
 </robot>
