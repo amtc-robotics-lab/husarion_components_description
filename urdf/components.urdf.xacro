@@ -58,7 +58,8 @@ limitations under the License.
         ('DEV07', 'dev07'),
         ('DEV07T', 'dev07t'),
         ('DEV09', 'dev09'),
-        ('DEV10', 'dev10')
+        ('DEV10', 'dev10'),
+        ('DEV11', 'dev11')
       ])}" />
 
       <xacro:if value="${type in dev_models_dict}">
