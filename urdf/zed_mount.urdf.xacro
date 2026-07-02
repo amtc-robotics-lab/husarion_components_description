@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:macro name="custom_component"
+               params="parent_link
+                       xyz:='0.0 0.0 0.0'
+                       rpy:='0.0 0.0 0.0'
+                       component_name:=''
+                       robot_namespace:=''
+                       use_tf_prefix:=True">
+
+    <link name="${component_name}_link">
+      <visual>
+        <geometry>
+          <mesh filename="package://husarion_components_description/meshes/zed_mount.dae" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.04 0.04 0.1" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${parent_link}_to_${component_name}_joint" type="fixed">
+      <parent link="${parent_link}" />
+      <child link="${component_name}_link" />
+      <origin xyz="${xyz}" rpy="${rpy}" />
+    </joint>
+  </xacro:macro>
+</robot>

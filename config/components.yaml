@@ -1,0 +1,68 @@
+# By default Husarion UGV is loaded without any components.
+
+components: 
+  - type: DEV10
+    parent_link: mount_link
+
+  - type: LDR11
+    name: lidar
+    parent_link: dev10_link
+    xyz: 0.0 0.0 0.250
+    rpy: 0.0 0.0 0.0
+
+  - type: custom
+    package: husarion_components_description # resolved as $(find package)/file
+    file: urdf/ublox_f9p_antenna.urdf.xacro
+    name: left
+    parent_link: mount_link
+    xyz: 0.0 0.32 0.0
+    rpy: 0.0 0.0 0
+
+  - type: custom
+    package: husarion_components_description 
+    file: urdf/ublox_f9p_antenna.urdf.xacro
+    name: right
+    parent_link: mount_link
+    xyz: 0.0 -0.32 0.00
+    rpy: 0.0 0.0 0
+
+  - type: DEV11
+    parent_link: mount_link
+
+  - type: custom
+    package: husarion_components_description 
+    file: urdf/jetson_agx.urdf.xacro
+    name: jetson
+    parent_link: mount_link
+    xyz: 0.12 -0.182 0.0
+    rpy: 0.0 0.0 3.14159
+
+  - type: custom
+    package: husarion_components_description 
+    file: urdf/zed_mount.urdf.xacro
+    name: zed_front_mount
+    parent_link: mount_link
+    xyz: 0.185 0.0 -0.01
+    rpy: 0.0 0.0 0.0
+
+  - type: custom
+    package: husarion_components_description 
+    file: urdf/zed_mount.urdf.xacro
+    name: zed_rear_mount
+    parent_link: mount_link
+    xyz: -0.185 0.0 -0.01
+    rpy: 0.0 0.0 3.14159
+
+  - type: CAM06
+    name: front_zed
+    parent_link: zed_front_mount_link
+    xyz: 0.02 0.0 0.0535
+    rpy: 0.0 -0.087266463 0.0
+
+  - type: CAM06
+    name: rear_zed
+    parent_link: zed_rear_mount_link
+    xyz: 0.02 0.0 0.0535
+    rpy: 0.0 -0.087266463 0.0
+
+ 
